@@ -1,16 +1,34 @@
 import { useState } from 'react'
+import axios from 'axios'
 
 export default function LoginModal({ isOpen, onClose, onLogin }) {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
   if (!isOpen) return null
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    onLogin({ email })
-    setPassword('')
-    onClose()
+    try {
+      const res = await axios.post('http://localhost:8000/api/token/', {
+        username: username,
+        password: password
+      })
+
+      // Guardar tokens
+      localStorage.setItem('access', res.data.access)
+      localStorage.setItem('refresh', res.data.refresh)
+
+      // Avisar al padre que el login fue exitoso
+      onLogin({ username, token: res.data.access })
+
+      // Resetear estado y cerrar modal
+      setPassword('')
+      onClose()
+    } catch (err) {
+      console.error('Error al iniciar sesión:', err)
+      alert('Usuario o contraseña inválidos')
+    }
   }
 
   return (
@@ -18,28 +36,18 @@ export default function LoginModal({ isOpen, onClose, onLogin }) {
       <div className="modal-content">
         <div className="modal-header">
           <h2 className="modal-title">👤 Iniciar sesión</h2>
-          <button className="close-btn" onClick={onClose}>
-            ✕
-          </button>
+          <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="modal-section">
-            <label className="label">Correo electrónico</label>
+            <label className="label">Nombre de usuario</label>
             <input
-              type="email"
+              type="text"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.6rem 0.8rem',
-                borderRadius: '8px',
-                border: '1px solid var(--border)',
-                background: 'var(--surface)',
-                color: 'var(--text)',
-              }}
-              placeholder="tu@correo.com"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="tu_usuario"
             />
           </div>
 
@@ -50,22 +58,11 @@ export default function LoginModal({ isOpen, onClose, onLogin }) {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.6rem 0.8rem',
-                borderRadius: '8px',
-                border: '1px solid var(--border)',
-                background: 'var(--surface)',
-                color: 'var(--text)',
-              }}
               placeholder="********"
             />
-            <p className="hint">Por ahora es solo un login de demostración.</p>
           </div>
 
-          <button type="submit" className="checkout-btn">
-            Entrar
-          </button>
+          <button type="submit" className="checkout-btn">Entrar</button>
         </form>
       </div>
     </div>
