@@ -123,6 +123,28 @@ header {
 .cart-icon:hover {
   transform: scale(1.1);
 }
+.user-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s;
+}
+
+.user-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary-light);
+  box-shadow: 0 0 12px rgba(66, 192, 255, 0.4);
+  transform: translateY(-1px);
+}
+
 
 .cart-count {
   position: absolute;

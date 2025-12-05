@@ -5,6 +5,9 @@ import ProductCard from './components/ProductCard'
 import ProductModal from './components/ProductModal'
 import CartModal from './components/CartModal'
 import { CATEGORIES, PRODUCTS } from './data/products'
+import LoginModal from './components/LoginModal'
+
+
 
 export default function App() {
   const [cart, setCart] = useState([])
@@ -13,6 +16,9 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [showProductModal, setShowProductModal] = useState(false)
   const [showCartModal, setShowCartModal] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
+const [user, setUser] = useState(null)
+
 
   const filteredProducts = searchQuery
     ? PRODUCTS.filter(p =>
@@ -54,10 +60,13 @@ export default function App() {
   return (
     <>
       <Header
-        cartCount={cart.length}
-        onCartClick={() => setShowCartModal(true)}
-        onSearch={setSearchQuery}
-      />
+  cartCount={cart.length}
+  onCartClick={() => setShowCartModal(true)}
+  onSearch={setSearchQuery}
+  onLoginClick={() => setShowLoginModal(true)}
+/>
+
+      
       <div className="container">
         <Filters
           categories={CATEGORIES}
@@ -90,6 +99,15 @@ export default function App() {
         onRemoveItem={handleRemoveFromCart}
         onCheckout={handleCheckout}
       />
+            <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLogin={(userData) => {
+          setUser(userData)
+          alert(`Sesión iniciada como ${userData.email}`)
+        }}
+      />
+
     </>
   )
 }
