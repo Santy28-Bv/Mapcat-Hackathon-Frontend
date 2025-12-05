@@ -1,12 +1,17 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Header from './components/Header'
 import Filters from './components/Filters'
 import ProductCard from './components/ProductCard'
 import ProductModal from './components/ProductModal'
 import CartModal from './components/CartModal'
-import { CATEGORIES, PRODUCTS } from './data/products'
+
+// ⬅️ AHORA VIENE DESDE data, NO desde services
+import { CATEGORIES } from './data/categories'
+
+import { getAllProducts } from './services/products'
 
 export default function App() {
+  const [products, setProducts] = useState([])
   const [cart, setCart] = useState([])
   const [activeFilter, setActiveFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -14,15 +19,26 @@ export default function App() {
   const [showProductModal, setShowProductModal] = useState(false)
   const [showCartModal, setShowCartModal] = useState(false)
 
+  // 🔥 Cargar productos desde Firestore
+  useEffect(() => {
+    async function loadProducts() {
+      const items = await getAllProducts()
+      setProducts(items)
+    }
+    loadProducts()
+  }, [])
+
+  // 🔍 Sistema de filtros
   const filteredProducts = searchQuery
-    ? PRODUCTS.filter(p =>
+    ? products.filter(p =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.description.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : activeFilter === 'all'
-    ? PRODUCTS
-    : PRODUCTS.filter(p => p.category === activeFilter)
+    ? products
+    : products.filter(p => p.category === activeFilter)
 
+  // 🛒 Agregar al carrito
   const handleAddToCart = useCallback((product, type, quantity) => {
     const cartItem = {
       id: `${product.id}-${type}-${Date.now()}`,
@@ -31,19 +47,23 @@ export default function App() {
       type,
       quantity: parseInt(quantity),
       unitPrice: type === 'buy' ? product.price : product.rentalPrice,
-      totalPrice: type === 'buy'
-        ? product.price * quantity
-        : product.rentalPrice * quantity
+      totalPrice:
+        type === 'buy'
+          ? product.price * quantity
+          : product.rentalPrice * quantity
     }
-    setCart([...cart, cartItem])
+
+    setCart(prev => [...prev, cartItem])
     setShowProductModal(false)
     alert('✓ Producto agregado al carrito')
   }, [])
 
+  // 🗑️ Remover del carrito
   const handleRemoveFromCart = useCallback((itemId) => {
-    setCart(cart.filter(item => item.id !== itemId))
-  }, [cart])
+    setCart(prev => prev.filter(item => item.id !== itemId))
+  }, [])
 
+  // 💳 Checkout
   const handleCheckout = () => {
     const total = cart.reduce((sum, item) => sum + item.totalPrice, 0) * 1.1
     alert(`✓ Compra completada!\nTotal: $${total.toFixed(2)}\n\nPróximamente integración con Stripe/PayPal`)
@@ -58,12 +78,14 @@ export default function App() {
         onCartClick={() => setShowCartModal(true)}
         onSearch={setSearchQuery}
       />
+
       <div className="container">
         <Filters
           categories={CATEGORIES}
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}
         />
+
         <div className="products-grid">
           {filteredProducts.map(product => (
             <ProductCard
@@ -77,12 +99,14 @@ export default function App() {
           ))}
         </div>
       </div>
+
       <ProductModal
         product={selectedProduct}
         isOpen={showProductModal}
         onClose={() => setShowProductModal(false)}
         onAddToCart={handleAddToCart}
       />
+
       <CartModal
         isOpen={showCartModal}
         onClose={() => setShowCartModal(false)}
