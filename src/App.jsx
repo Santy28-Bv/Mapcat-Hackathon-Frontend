@@ -1,13 +1,16 @@
 import { useState, useCallback, useEffect } from 'react'
+
 import Header from './components/Header'
 import Filters from './components/Filters'
 import ProductCard from './components/ProductCard'
 import ProductModal from './components/ProductModal'
 import CartModal from './components/CartModal'
+import LoginModal from './components/LoginModal'
 
-// ⬅️ AHORA VIENE DESDE data, NO desde services
+// Categorías desde data
 import { CATEGORIES } from './data/categories'
 
+// Productos desde Firestore
 import { getAllProducts } from './services/products'
 
 export default function App() {
@@ -18,6 +21,10 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [showProductModal, setShowProductModal] = useState(false)
   const [showCartModal, setShowCartModal] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
+
+  // Estado del usuario logueado
+  const [user, setUser] = useState(null)
 
   // 🔥 Cargar productos desde Firestore
   useEffect(() => {
@@ -28,11 +35,15 @@ export default function App() {
     loadProducts()
   }, [])
 
-  // 🔍 Sistema de filtros
+  // 🔍 Filtros y búsqueda
   const filteredProducts = searchQuery
     ? products.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchQuery.toLowerCase())
+        (p.name || '')
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (p.description || '')
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
       )
     : activeFilter === 'all'
     ? products
@@ -77,6 +88,8 @@ export default function App() {
         cartCount={cart.length}
         onCartClick={() => setShowCartModal(true)}
         onSearch={setSearchQuery}
+        onLoginClick={() => setShowLoginModal(true)} // ⬅️ Se agregó del código de tu amigo
+        user={user} // opcional si Header lo soporta
       />
 
       <div className="container">
@@ -113,6 +126,15 @@ export default function App() {
         cartItems={cart}
         onRemoveItem={handleRemoveFromCart}
         onCheckout={handleCheckout}
+      />
+
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLogin={(userData) => {
+          setUser(userData)
+          alert(`Sesión iniciada como ${userData.email}`)
+        }}
       />
     </>
   )
