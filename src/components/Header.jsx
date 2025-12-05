@@ -1,4 +1,7 @@
 import { useState } from 'react'
+// RUTA CORREGIDA: Usamos '../' para subir un nivel (de 'components' a 'src') 
+// y acceder a la carpeta 'assets'.
+import logoImage from '../assets/isotipo-sinfondo.png' 
 
 export default function Header({ cartCount, onCartClick, onSearch }) {
   const [searchValue, setSearchValue] = useState('')
@@ -7,24 +10,32 @@ export default function Header({ cartCount, onCartClick, onSearch }) {
     onSearch(searchValue)
   }
 
+  // Define el estilo Neón como un objeto de JS para usarlo en 'style'
+  const neonStyle = {
+    color: '#ffffff', // Color base del texto (blanco)
+    textShadow: 
+      '0 0 7px rgba(255, 255, 255, 0.8), ' + // Luz interior intensa
+      '0 0 10px #e9b3ff, ' +                  // Brillo exterior cercano (púrpura claro)
+      '0 0 21px #a235ff'                      // Resplandor amplio (púrpura medio)
+    // Nota: El color en línea '#ffffffff' es el mismo que '#ffffff' (el último ff es transparencia y no es estándar para color simple)
+  };
+
   return (
     <header>
       <div className="header-container">
         <div className="logo">
-          <svg 
+          {/* SVG reemplazado por la etiqueta <img> */}
+          <img 
+            src={logoImage} 
+            alt="Pixsoft Store Logo" 
             width="45" 
             height="45" 
-            viewBox="0 0 100 100" 
-            fill="none" 
-            xmlns="\src\assets\pixsoft-dark.jpg" 
-            style={{ filter: 'drop-shadow(0 0 15px rgba(66, 192, 255, 0.8))' }}
-          >
-            <circle cx="25" cy="25" r="20" stroke="#42c0ff" strokeWidth="4" fill="none" />
-            <circle cx="75" cy="75" r="20" stroke="#42c0ff" strokeWidth="4" fill="none" />
-            <line x1="35" y1="35" x2="65" y2="65" stroke="#ffffff" strokeWidth="3" />
-            <path d="M 55 25 L 75 45" stroke="#ffffff" strokeWidth="3" fill="none" />
-          </svg>
-          <span>PIXSOFT STORE</span>
+            style={{ 
+              filter: 'drop-shadow(0 0 15px rgba(66, 192, 255, 0.8))' 
+            }}
+          />
+          {/* TEXTO CON EFECTO NEÓN APLICADO */}
+          <span style={neonStyle}>PIXSOFT STORE</span>
         </div>
         <div className="search-bar">
           <input
